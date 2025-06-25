@@ -1,12 +1,9 @@
 pipeline {
-    agent {
-        node {
-            label 'nodejs'
-        }
+    agent any // Or specify a specific agent, e.g., agent { docker 'node:16-alpine' }
     parameters {
-        booleanParam(name: "RUN_FRONTEND_TESTS", defaultValue: true)
+        booleanParam(name: 'RUN_FRONTEND_TESTS', defaultValue: false, description: 'Run frontend tests?')
     }
-      stages {
+    stages {
         stage('Run Tests') {
             parallel {
                 stage('Backend Tests') {
@@ -15,17 +12,25 @@ pipeline {
                     }
                 }
                 stage('Frontend Tests') {
-                    when { expression { params.RUN_FRONTEND_TESTS } }
+                    when {
+                        expression { params.RUN_FRONTEND_TESTS }
+                    }
                     steps {
                         sh 'node ./frontend/test.js'
                     }
-                 stage('Deploy') {
-                     when {
-                          expression { env.GIT_BRANCH == 'origin/main' }
-                 } 
-                 steps {
-                echo 'Deploying...'
-                }  
+                }
+            }
+        }
+        stage('Deploy') {
+            when {
+                expression { env.GIT_BRANCH == 'origin/main' }
+            }
+            steps {
+                echo 'Step not executed...'
+                // Add your deployment commands here, e.g.:
+                // sh 'npm run deploy'
+                // sh 'scp -r build/* user@yourserver:/var/www/html'
+            }
         }
     }
 }
