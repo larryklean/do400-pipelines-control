@@ -1,5 +1,10 @@
 pipeline {
-    stages {
+    agent {
+        node {
+            label 'nodejs'
+        }
+    }
+      stages {
         stage('Run Tests') {
             parallel {
                 stage('Backend Tests') {
